@@ -1,0 +1,232 @@
+
+Hello Everyone!
+
+Trainers: Sonal Mittal
+=============================
+
+Agenda:
+==============================
+On SDLC phases
+Challenges in traditional model
+What is DevOps and Why DevOps 
+DevOps principles
+25 mins Break
+Continuous Version control 
+GIT and its workflow
+================================================
+
+Demo 1 : Create a working directory, Create a local repo, and add the git configurations
+
+# sudo su -
+
+# mkdir myproject
+
+# cd myproject 
+
+# touch index1.html index2.html 
+
+# git init 
+
+# git config --global user.name admin
+
+# git config --global user.email admin@gmail.com
+
+Demo2: Add the files to git local repo
+
+# git status
+
+# git add .
+
+# git status 
+
+# git commit -m "added new files"
+
+# git ls-files 
+
+# git log
+
+Demo 3: Modify the file and add the modifications to local repo -> restore
+
+# echo "added content to file" >> index1.html
+
+# echo "added content again to file" >> index1.html
+
+# git status 
+
+# git commit -a -m "done modifications"
+
+# echo "added content again-2 to file" >> index1.html
+
+# echo "added content again-3 to file" >> index1.html
+
+Check the difference between 2 version of the same file 
+
+# git diff index1.html
+
+Discard changes in workign directory 
+
+# git restore index1.html 
+
+# cat index1.html
+
+# echo "added content again-4 to file" >> index1.html
+
+# git add .
+
+take changes back to working directory - un-stage the staged changes 
+
+# git restore --staged index1.html
+
+# git commit -a -m "added modifications"
+ 
+Demo 4:
+Delete an existing file and delete it form working directory and local repo.
+
+# git rm index1.html 
+
+# git status 
+
+# git commit -m "deleted file"
+
+Demo 5: revert the changes back to its previous version
+
+# git log --oneline 
+
+copy the commit id (7 characters) of deleted file 
+
+# git revert <commit id>
+
+in the editor provide your comments
+save the ditory - CTL X -> y -> enter key 
+
+# git log --oneline 
+
+# ls 
+
+# git ls-files
+
+Demo 6: Reset the commit history 
+
+# git log --oneline 
+
+copy the last commit id and not the recent commit id 
+
+# git reset --hard <commit id>
+
+# git log --oneline 
+
+# ls
+
+Demo 7: GIT Branching
+
+Check the number of branchs 
+
+# git branch 
+
+create a new branch 
+
+# git branch dev 
+
+# git branch 
+
+To work on branch - Switch to the branch 
+
+# git checkout dev 
+
+# git log --oneline 
+
+Create a new commit on branch 
+
+# touch dev_file1 
+
+# git add .
+
+# git commit -m "done on dev branch"
+
+# git log --oneline 
+
+Merge the chnages with master 
+
+First switch to master 
+
+# git checkout master
+
+# git merge dev master 
+
+# git log --oneline 
+
+Delete the dev branch 
+
+# git branch -d dev 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
