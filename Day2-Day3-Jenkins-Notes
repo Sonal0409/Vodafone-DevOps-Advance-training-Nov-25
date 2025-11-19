@@ -3,34 +3,18 @@ Author: Sonal Mittal
 Jenkins Installation:
 Below are the steps to be executed for jenkins installation:
 
-Create a VM with Ubuntu 22 and Instance type = t2.medium
-Install java version 17
-# sudo apt update
+# java --version
 
-# sudo apt install openjdk-17-jdk -y
-
-Install jenkins on Ubuntu 22:
-
-# sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-
-# echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+Install jenkins on lab:
 
 
-sudo apt-get update
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install jenkins -y
 
-sudo apt-get install jenkins
-
-systemctl start jenkins
 
 
-=====================================================
-In case your port 8080 is open on the VM but you are unable to access from your windows machine, recheck your network settings in windows machine as mentioned below.
-Open Start Menu and click Settings.
-Go to Update & Security > Windows Security.
-Click Firewall & network protection.
-Select your active network profile (Private, Public, or Domain).
-Under Microsoft Defender Firewall, switch the setting to Off1 2 5.
-Save changes and try accessing Jenkins again.
 
 Jenkins Demonstrations:
 
