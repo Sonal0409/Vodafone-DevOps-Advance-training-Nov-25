@@ -186,7 +186,7 @@ Save the file
   - name: deploy html code
     copy: src=index.html dest={{dest_path}}
   - name: restart {{pkg_name}} service
-    service: name={{pkg_name}} state={{service_sta
+    service: name={{pkg_name}} state={{service_state[1]}}
 
 
 Save the playbook and run
