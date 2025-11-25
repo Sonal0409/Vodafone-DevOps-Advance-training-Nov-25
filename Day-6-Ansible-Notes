@@ -26,7 +26,7 @@ $ vim /etc/ansible/hosts
 press i to insert data, scroll to the bottom and enter below text
 
 [webserver]
-localhost:42006
+localhost:22
 
 Save the file . Esc key --> :wq --> enter key
 
