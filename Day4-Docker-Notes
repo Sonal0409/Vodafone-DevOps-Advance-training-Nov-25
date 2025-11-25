@@ -255,6 +255,6 @@ Just for your information:
 
 Step5 : remove taint form master node of lab
 
-# kubectl taint node ip-172-31-25-55  node-role.kubernetes.io/master:NoSchedule-
+# kubectl taint node ip-172-31-30-173 node-role.kubernetes.io/control-plane:NoSchedule-
 
 Replace with your node name in above command [ run kubectl get nodes to get the node NAME]
