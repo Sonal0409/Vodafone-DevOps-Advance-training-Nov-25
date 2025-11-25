@@ -210,31 +210,38 @@ Update the index.html file
 
 # echo "update .." >> index.html
 
-# vim playbook8.yml
+# vim playbook6.yml
 
-- name: Handlers in ansible
-  hosts: localhost
-  become: true
+- name: Deploy HTML code in apache2 server
+  hosts: webserver
   vars:
-   pkg_name: apache2
+   pkg_name: nginx
    dest_path: /var/www/html
+   service_state:
+     - started
+     - restarted
   tasks:
-  - name: Exeucte command
-    command: hostname -s
-    notify: Execution status
-  - name: Deploy HTML code  # parent task
+  - name: Install {{pkg_name}} package
+    package: name={{pkg_name}} state=present
+  - name: start the {{pkg_name}} service
+    service: name={{pkg_name}} state={{service_state[0]}}
+  - name: deploy html code
     copy: src=index.html dest={{dest_path}}
-    notify: Restart apache2 server
-  handlers: # these tasks will not exeucte by themselves
-  - name: Execution status
+    notify: restart {{pkg_name}} service
+  - name: run a command
+    command: hostname -s
+    notify: print a message
+  handlers:
+  - name: restart {{pkg_name}} service
+    service: name={{pkg_name}} state={{service_state[1]}}
+  - name: print a message
     debug: msg="command exeucted successfully"
-  - name: Restart apache2 server # child task
-    service: name={{pkg_name}} state=restarted
+
 
 
 Save the file
 
-# ansible-playbook playbook8.yml
+# ansible-playbook playbook6.yml
 
 
 ===================================================
