@@ -156,7 +156,7 @@ save the file
 # ansible-playbook playbook6.yml
 
 ==========================================
-Deploy HTML code on Apache2 server
+Deploy HTML code on NGINX server
 
 
 # vim index.html
@@ -170,21 +170,23 @@ Save the file
 # vim playbook7.yml
 
 
-- name: Deploy HTML code on apache2 server
-  hosts: localhost
-  become: true
+- name: Deploy HTML code in apache2 server
+  hosts: webserver
   vars:
-   pkg_name: apache2
+   pkg_name: nginx
    dest_path: /var/www/html
+   service_state:
+     - started
+     - restarted
   tasks:
-  - name: Install a package
+  - name: Install {{pkg_name}} package
     package: name={{pkg_name}} state=present
-  - name: Start apache2 service
-    service: name={{pkg_name}} state=started
-  - name: Deploy HTML code
+  - name: start the {{pkg_name}} service
+    service: name={{pkg_name}} state={{service_state[0]}}
+  - name: deploy html code
     copy: src=index.html dest={{dest_path}}
-  - name: Restart apache2 server
-    service: name={{pkg_name}} state=restarted
+  - name: restart {{pkg_name}} service
+    service: name={{pkg_name}} state={{service_sta
 
 
 Save the playbook and run
