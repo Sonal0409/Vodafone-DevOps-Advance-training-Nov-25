@@ -65,22 +65,28 @@ Execute the playbook:
 
 
 =======================================================
-# vim playbook3.yml
+# vim playbook2.yml
 
-- name: Install packages and create a file
+- name: install a packge and create a file
   hosts: webserver
-  become: true # become plugin will be used to escalate the permission of current user to root permissions
-  become_user: root
   tasks:
-  - name: Install git on hostserver
-    package: name=git state=present
-  - name: Create a file on hostserver
-    file: path=/tmp/file1 state=touch
+  - name: Install php on host server
+    package: name=php state=present
+  - name: create a file
+    file: path=/tmp/file-new state=touch
+  - name: install multiple packages
+    package: name={{item}} state=present
+    loop:
+      - git
+      - maven
+      - nano
+      - tree
+
 
 
 save the file (:wq!)
 
-# ansible-playbook playbook3.yml
+# ansible-playbook playbook2.yml
 
 ===================================
 # vim playbook4.yml
