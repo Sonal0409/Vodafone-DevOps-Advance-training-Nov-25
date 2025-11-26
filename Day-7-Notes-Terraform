@@ -38,36 +38,6 @@ Add the below code in the file:
 
 # vim aws_infra.tf
 
-resource "aws_instance" "myec2" {
-  ami           = "ami-053a45fff0a704a47"
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "instance-1"
-  }
-}
-
-Save the file
-
-# terraform validate
-
-# terraform plan
-
-# terraform apply --auto-approve
-
-Destroy the created infrastructure
-
-# terraform destroy --auto-approve
-
-Data block in the terraform file:
-
-
-add this block in between provider and resource block
-
-# vim aws_infra.tf
-
-
-
 data "aws_ami" "myami" {
   most_recent = true
 
@@ -79,18 +49,34 @@ data "aws_ami" "myami" {
   owners = ["amazon"]
 }
 
+resource "aws_instance" "myec2" {
+  ami           = data.aws_ami.myami.id
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "instance-1"
+  }
+}
+
 
 Save the file
 
+# terraform validate
+
 # terraform plan
 
-Full terraform file:
-======================================
+# terraform apply --auto-approve
+
+
+You can go to aws --> ec2 instance --> you will see the instance
+
+
+The complete file will be:
 
 provider "aws" {
   region     = "us-east-1"
-   shared_credentials_files = ["~/.aws/credentials"]
-
+  access_key = ""
+  secret_key = " "
 }
 
 data "aws_ami" "myami" {
@@ -112,6 +98,12 @@ resource "aws_instance" "myec2" {
     Name = "instance-1"
   }
 }
+
+===========================================================
+Destroy the created infrastructure
+
+# terraform destroy --auto-approve
+
 
 ===================================
 Variables and Dynamic block (for_each loop) in terraform
