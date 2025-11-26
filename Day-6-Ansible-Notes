@@ -319,9 +319,9 @@ Ansible Roles:
 
 Create a role apache using ansible-galaxy
 
-#  ansible-galaxy init apache
+#  ansible-galaxy init nginx
 
-# cd apache
+# cd nginx
 
 Delete the directory that  are not needed for this scenario
 
@@ -329,11 +329,11 @@ Delete the directory that  are not needed for this scenario
 
 # sudo vim tasks/main.yml
 
-  - name: Install apache2
+  - name: Install nginx
     package: name={{pkg_name}} state=present
-  - name: Start the apache2 server
+  - name: Start the nginx server
     service: name={{pkg_name}} state=started
-  - name: Copy the html code on apache2 server
+  - name: Copy the html code on nginx server
     template: src=index.html.j2 dest={{dest_path}}
     notify: Restart Server
 
@@ -345,7 +345,7 @@ Write the vars section for the playbook:
 # sudo vim vars/main.yml
 
 Press i to insert
-pkg_name: apache2
+pkg_name: nginx
 dest_path: /var/www/html/index.html
 email:
  - admin@gmail.com
@@ -411,7 +411,7 @@ Execute the command
 - hosts: webserver
   become: true
   roles:
-   - apache
+   - nginx
 
 
 Save the file
