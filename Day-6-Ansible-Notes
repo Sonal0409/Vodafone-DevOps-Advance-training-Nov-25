@@ -288,7 +288,7 @@ Save the file
 # vim playbookJinja2.yml
 
 - name: Jinja2 Templates
-  hosts: webserver
+  hosts: localhost
   become: true
   vars:
    admin_name: Ansible_admin
