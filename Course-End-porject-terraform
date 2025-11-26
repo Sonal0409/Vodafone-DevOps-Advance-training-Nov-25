@@ -1,3 +1,8 @@
+use this URL to fetch commands to install java and jenkins :
+https://www.jenkins.io/doc/book/installing/linux/#red-hat-centos
+
+
+
 # mkdir myproject
 # cd myproject
 # vim main.tf
