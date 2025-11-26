@@ -128,7 +128,7 @@ resource "aws_security_group" "mysg" {
     content{
     from_port        = port.value
     to_port          = port.value
-    protocol         = "-1"
+    protocol         = "tcp"
     cidr_blocks      = [var.cidr[0]]
   }
 }
