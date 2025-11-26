@@ -408,7 +408,7 @@ Execute the command
 # vim playbookRole1.yml
 
 
-- hosts: webserver
+- hosts: localhost
   become: true
   roles:
    - nginx
