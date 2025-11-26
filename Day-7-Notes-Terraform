@@ -1,0 +1,611 @@
+======================================
+
+
+Create accesskey and secret key
+
+In AWS 
+
+IAM > Users > click on add user > give a username > click next > select Attach policies directly > select AdministratorAccess below >> click on next > click on create user.
+
+Now lets attach access key and secret key to the user.
+
+Click on username>> click on security credentials > Select Access keys> click on create access key
+ > sleect Command Line Interface (CLI)
+> click on I understand the above recommendation and want to proceed to create an access key. > press next > click on create access key
+
+
+go to lab terminal:
+======================
+
+# mkdir myterraformfiles
+
+# cd myterraformfiles
+
+# vim aws_infra.tf
+
+provider "aws" {
+  region     = "us-east-1"
+   shared_credentials_files = ["~/.aws/credentials"]
+
+}
+
+
+Save the file (:wq)
+
+# terraform init
+
+Add the below code in the file:
+
+# vim aws_infra.tf
+
+resource "aws_instance" "myec2" {
+  ami           = "ami-053a45fff0a704a47"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "instance-1"
+  }
+}
+
+Save the file
+
+# terraform validate
+
+# terraform plan
+
+# terraform apply --auto-approve
+
+Destroy the created infrastructure
+
+# terraform destroy --auto-approve
+
+Data block in the terraform file:
+
+
+add this block in between provider and resource block
+
+# vim aws_infra.tf
+
+
+
+data "aws_ami" "myami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+ }
+
+  owners = ["amazon"]
+}
+
+
+Save the file
+
+# terraform plan
+
+Full terraform file:
+======================================
+
+provider "aws" {
+  region     = "us-east-1"
+   shared_credentials_files = ["~/.aws/credentials"]
+
+}
+
+data "aws_ami" "myami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+ }
+
+  owners = ["amazon"]
+}
+
+resource "aws_instance" "myec2" {
+  ami           = data.aws_ami.myami.id
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "instance-1"
+  }
+}
+
+===================================
+Variables and Dynamic block (for_each loop) in terraform
+
+# vim aws_sg.tf
+
+variable "sg_ports"{
+ type = list(number)
+ default = [8080,80,9090,22,443]
+}
+
+variable "cidr"{
+ type = list
+ default = ["0.0.0.0/0","10.0.0.0/16"]
+}
+resource "aws_security_group" "mysg" {
+  name        = "allow_tls"
+  description = "Allow TLS inbound traffic"
+ dynamic  ingress {
+    for_each = var.sg_ports
+    iterator = port
+    content{
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "-1"
+    cidr_blocks      = [var.cidr[0]]
+  }
+}
+}
+
+Save the file(:wq)
+
+# terraform plan
+
+
+===================================================
+Terraform Modules:
+=========================================
+Modules in terraform are nothing but collection of terraform configuration files that are written in dedicated directories
+
+Modules encapsulates group of resources, variables, output block than this modules can be called again and again to create infrastructure in different directories
+In a team one can create modules of various resources and other team members can reuse the module for infra creation.
+
+Modules are reusable terraform code.
+
+There are various types of modules:
+Root module
+Child modules [these are sources in the main.tf file]
+Local modules - modules that you write in your local machine and reuse them in your local machine itself 
+Published modules - modules that are available for free on terraform registry written terraform team
+You can also push your local module code to VCS where others can use it. -> published Modules.
+
+A typical module directory consist : 
+> TF config file
+> variables.tf
+> output.tf
+> README.md
+==============================================
+Demo:
+===============================================
+
+# cd
+
+# mkdir modules dev prod
+
+# cd modules
+
+#  mkdir myec2     ⇒ this is a module name
+
+# cd myec2
+
+# vim myec2.tf
+
+
+data "aws_ami" "myami" {
+
+  most_recent = true
+
+  owners = ["amazon"]
+
+  filter{
+    name = "name"
+    values = ["amzn2-ami-hvm*"]
+}
+
+}
+
+
+resource "aws_instance" "test-ec2" {
+
+ami = data.aws_ami.myami.id
+
+instance_type = var.instance_type
+
+  tags = {
+    Name = "Instance-test"
+  }
+
+
+}
+Save the file,
+
+# vim variables.tf
+
+variable "instance_type" {
+default = "t2.micro"
+}
+
+
+Save the file
+
+Copy the path of directory
+
+/root/modules/myec2
+
+
+Now come out of current directory
+
+# cd ..
+
+# mkdir mysg     ⇒ this module name 2
+
+# cd mysg
+
+# vim mysg.tf
+
+Add this block
+
+
+
+resource "aws_security_group" "mysg" {
+  name   = "sl-sg"
+
+    dynamic "ingress" {
+    for_each = var.sg_ports
+    iterator = port
+   content{
+   from_port = port.value
+   to_port = port.value
+   protocol = "tcp"
+   cidr_blocks = ["0.0.0.0/0"]
+}
+}
+
+
+}
+
+
+Save the file
+
+
+# vim variables.tf
+
+variable "sg_ports" {
+
+type = list(number)
+
+default = [8282,8080,9090,80,8181]
+
+}
+
+Save the file
+
+Copy the path of this module:
+/root/modules/mysg
+
+# ls
+
+You will see 2 modules in the current directory.
+
+Now lets call or use the modules in the TF config file:
+======================
+# cd
+
+# cd dev
+
+# vim main.tf
+
+provider "aws" {
+  region = "us-east-1"
+  shared_credentials_files =  ["~/.aws/credentials"]
+}
+
+
+module "myec2module" {
+
+source = "/root/modules/myec2"
+
+
+}
+
+module "mysgmodule" {
+
+source = "/root/modules/mysg"
+
+}
+
+
+Save the file
+
+
+# terraform init
+This will download the modules in current directory
+# terraform plan
+
+============================
+Creating a modules to create same resource in different AWS regions
+==========================================
+
+
+# cd modules
+# mkdir region_module
+
+# cd region_module
+
+# vim region.tf
+
+variable "region" {
+
+type = string
+
+}
+
+
+provider "aws" {
+
+region = var.region
+
+shared_credentials_files =  ["~/.aws/credentials"]
+
+}
+
+data "aws_ami" "myami"{
+
+most_recent = true
+
+owners = ["amazon"]
+
+filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+  }
+
+}
+
+resource "aws_instance" "myec2-1" {
+  ami           = data.aws_ami.myami.id
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "terraform1"
+  }
+
+
+}
+
+Save the file
+
+The path of module is: /root/modules/region_module
+
+# mkdir provider_demo
+
+# cd provider_demo
+
+# vim main.tf
+
+
+variable "regions" {
+
+type = list(string)
+
+default = ["us-east-1", "us-east-2", "us-west-1"]
+
+}
+
+module "aws_region_demo" {
+
+source = "/root/modules/region_module"
+
+region = var.regions[0]
+
+}
+
+module "aws_region_demo1" {
+
+source = "/root/modules/region_module"
+
+region = var.regions[1]
+
+}
+
+
+# terraform init
+
+# terraform plan
+
+Provisioners:
+If we have to perform a set of actions on the local machine or on the AWS remote machine we can then use terraform provisioners
+
+Local-exec provisioners:
+
+Using this provisioner terraform can run a command or a script on the local machine(lab machine) where terraform is present.
+
+Example:
+If we generate TLS private key and public key
+We can use local-exec provisioner to run a command that will copy the private key into a new file on the local machine.
+
+The provisioner block is always nested inside the resource block
+
+
+
+Create accesskey and secret key
+
+In AWS 
+
+IAM > Users > click on add user > give a username > click next > select Attach policies directly > select AdministratorAccess below >> click on next > click on create user.
+
+Now lets attach access key and secret key to the user.
+
+Click on username>> click on security credentials > Select Access keys> click on create access key
+ > sleect Command Line Interface (CLI)
+> click on I understand the above recommendation and want to proceed to create an access key. > press next > click on create access key
+
+
+Demo of Local-exec provisioner:
+=====================================
+# sudo su -
+
+# aws configure
+
+# mkdir provisioner-demo
+# cd provisioner-demo
+
+# vim main.tf
+ 
+provider "aws" {
+
+region = "us-east-1"
+
+shared_credentials_files =  ["~/.aws/credentials"]
+
+}
+
+resource "tls_private_key" "mykey" {
+  algorithm = "RSA"
+
+}
+
+resource "aws_key_pair" "aws_key" {
+  key_name   = "web-key"
+  public_key = tls_private_key.mykey.public_key_openssh
+
+  provisioner "local-exec" {
+  command = "echo '${tls_private_key.mykey.private_key_openssh}' > ./web-key.pem"
+
+}
+
+}
+
+Save the file
+
+# terraform init
+
+# terraform apply
+
+=======================================================
+Remote-exec provisioner:
+=============================
+Remote-exec provisioners will remotely connect to AWS resources created by terraform.
+In Remote-exec provisioners terraform will successfully connect to AWS resource over SSH and then execute a command/script on it 
+Remote-exec provisioners will have 2 parts:
+Connection : we will give SSH details to connect to remote ec2 server
+Inline : set of commands to be executed on remote ec2 server
+
+In same folder create a new file
+
+# vim aws_project.tf
+
+resource "aws_vpc" "sl-vpc" {
+ cidr_block = "10.0.0.0/16"
+  tags = {
+   Name = "sl-vpc"
+}
+
+}
+
+resource "aws_subnet" "subnet-1"{
+
+vpc_id = aws_vpc.sl-vpc.id
+cidr_block = "10.0.1.0/24"
+depends_on = [aws_vpc.sl-vpc]
+map_public_ip_on_launch = true
+  tags = {
+   Name = "sl-subnet"
+}
+
+}
+
+resource "aws_route_table" "sl-route-table"{
+vpc_id = aws_vpc.sl-vpc.id
+  tags = {
+   Name = "sl-route-table"
+}
+
+}
+
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.subnet-1.id
+  route_table_id = aws_route_table.sl-route-table.id
+}
+
+
+resource "aws_internet_gateway" "gw" {
+ vpc_id = aws_vpc.sl-vpc.id
+ depends_on = [aws_vpc.sl-vpc]
+   tags = {
+   Name = "sl-gw"
+}
+
+}
+
+resource "aws_route" "sl-route" {
+
+route_table_id = aws_route_table.sl-route-table.id
+destination_cidr_block = "0.0.0.0/0"
+gateway_id = aws_internet_gateway.gw.id
+
+
+}
+
+variable "sg_ports" {
+type = list(number)
+default = [8080,80,22,443]
+
+}
+
+
+
+
+resource "aws_security_group" "sl-sg" {
+  name        = "sg_rule"
+  vpc_id = aws_vpc.sl-vpc.id
+  dynamic  "ingress" {
+    for_each = var.sg_ports
+    iterator = port
+    content{
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    }
+  }
+egress {
+
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+
+
+}
+
+}
+
+
+resource "aws_instance" "myec2" {
+  ami           = "ami-053a45fff0a704a47"
+  instance_type = "t2.micro"
+  key_name = "web-key"
+  subnet_id = aws_subnet.subnet-1.id
+  security_groups = [aws_security_group.sl-sg.id]
+  tags = {
+    Name = "Terrafrom-EC2"
+  }
+  provisioner "remote-exec" {
+  connection {
+    type     = "ssh"
+    user     = "ec2-user"
+    private_key = tls_private_key.mykey.private_key_pem
+    host     = self.public_ip
+  }
+  inline = [
+  "sudo yum install httpd -y",
+  "sudo systemctl start httpd",
+  "sudo systemctl enable httpd",
+  "sudo yum install git -y"
+
+
+]
+
+}
+}
+
+# terraform init
+# terraform apply
+
+========================================
