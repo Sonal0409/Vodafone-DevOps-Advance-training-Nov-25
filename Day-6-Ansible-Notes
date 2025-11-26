@@ -247,6 +247,7 @@ Save the file
 ===================================================
 Jinja2 in Ansible
 ====================================================
+# sudo su -
 # cd /etc/ansible
 
 # vim webfile.conf.j2
