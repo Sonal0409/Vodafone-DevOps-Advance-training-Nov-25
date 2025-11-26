@@ -419,4 +419,33 @@ Save the file
 Execute the playbook, which inturn executes the role.
 
 
+Demo 2:
 
+# cd roles
+
+# git clone https://github.com/Sonal0409/tomcat-role.git
+
+# cd tomcat-role
+
+# cd tasks
+You will see all the yamls
+
+# cd ../../..
+
+create a playbook to run the role
+
+playbookroles.yml
+
+- name: Roles in ansible
+  hosts: localhost
+  roles:
+    - tomcat-role
+
+
+save the file and run
+
+ansible-playbook playbookroles.yml -e "action=install"
+
+OR
+
+ansible-playbook playbookroles.yml -e "action=uninstall"
